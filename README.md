@@ -19,7 +19,6 @@ Navigate to the API folder and compile the project skipping tests:
 ```cmd
 cd api-quarkus
 mvnw clean package -DskipTests
-cd ..
 ```
 
 ### 2. Start the Docker Infrastructure
@@ -32,6 +31,7 @@ The API will be live at `http://localhost:8080/frutas`.
 ### 3. Run the Frontend
 Navigate to the Vue folder, install dependencies, and start the Vite dev server:
 ```cmd
+cd ..
 cd front-vue.js
 npm install
 npm run dev
