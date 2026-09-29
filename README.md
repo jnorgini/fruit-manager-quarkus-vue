@@ -1,4 +1,4 @@
-# Fruit Manager (Quarkus + Vue Cloud Stack)
+# Fruit Manager (Quarkus + Vue.js)
 
 A minimalist and modern full-stack web application to manage fruits, built using Java and JavaScript ecosystems.
 
