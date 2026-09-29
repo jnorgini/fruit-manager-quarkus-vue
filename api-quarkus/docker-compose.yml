@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+    db:
+        image: mysql:8.0
+        container_name: mysql-quarkus
+        restart: always
+        environment:
+            MYSQL_DATABASE: quarkus
+            MYSQL_ROOT_PASSWORD: 1414
+        ports:
+            - "3307:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+
+    api:
+        build:
+            context: .
+            dockerfile: src/main/docker/Dockerfile.jvm
+        image: quarkus-api-frutas
+        container_name: api-quarkus-container
+        restart: always
+        ports:
+            - "8080:8080"
+        environment:
+            - QUARKUS_DATASOURCE_DB_KIND=mysql
+            - QUARKUS_DATASOURCE_USERNAME=root
+            - QUARKUS_DATASOURCE_PASSWORD=1414
+            - QUARKUS_DATASOURCE_JDBC_URL=jdbc:mysql://db:3306/quarkus
+            - QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=update
+        depends_on:
+            - db
+
+volumes:
+    mysql_data:
