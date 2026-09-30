@@ -3,18 +3,13 @@
     <div class="max-width-wrapper">
       <!-- Container dos Toasts (Pop-ups de notificação) -->
       <div class="toast-container">
-        <div
-          v-for="toast in toasts"
-          :key="toast.id"
-          class="toast"
-          :class="'toast-' + toast.tipo"
-        >
+        <div v-for="toast in toasts" :key="toast.id" class="toast" :class="'toast-' + toast.type">
           <span class="toast-icon">
-            <span v-if="toast.tipo === 'success'">✅</span>
-            <span v-else-if="toast.tipo === 'danger'">🗑️</span>
+            <span v-if="toast.type === 'success'">✅</span>
+            <span v-else-if="toast.type === 'danger'">🗑️</span>
             <span v-else>ℹ️</span>
           </span>
-          <span class="toast-message">{{ toast.mensagem }}</span>
+          <span class="toast-message">{{ toast.message }}</span>
         </div>
       </div>
 
@@ -26,51 +21,30 @@
       </header>
 
       <!-- Formulário de Cadastro / Edição -->
-      <section class="card" :class="{ 'card-editing': modoEdicao }">
+      <section class="card" :class="{ 'card-editing': isEditing }">
         <h2 class="card-title">
-          <span v-if="modoEdicao">✏️ Editar Fruta</span>
+          <span v-if="isEditing">✏️ Editar Fruta</span>
           <span v-else>✨ Cadastrar Nova Fruta</span>
         </h2>
 
-        <form @submit.prevent="submeterFormulario" class="form-grid">
+        <form @submit.prevent="handleSubmit" class="form-grid">
           <div class="input-group">
             <label class="label">Nome da Fruta</label>
-            <input
-              v-model="novaFruta.nome"
-              type="text"
-              placeholder="Ex: Melancia"
-              required
-              class="input-field"
-            />
+            <input v-model="newFruit.name" type="text" placeholder="Ex: Melancia" required class="input-field" />
           </div>
 
           <div class="input-group">
             <label class="label">Cor Predominante</label>
-            <input
-              v-model="novaFruta.cor"
-              type="text"
-              placeholder="Ex: Verde"
-              required
-              class="input-field"
-            />
+            <input v-model="newFruit.color" type="text" placeholder="Ex: Verde" required class="input-field" />
           </div>
 
           <!-- Botões Dinâmicos dependendo do Modo (Cadastro vs Edição) -->
           <div class="actions-group">
-            <button
-              v-if="modoEdicao"
-              type="button"
-              @click="cancelarEdicao"
-              class="btn-cancel"
-            >
+            <button v-if="isEditing" type="button" @click="cancelEdit" class="btn-cancel">
               Cancelar
             </button>
-            <button
-              type="submit"
-              class="btn-submit"
-              :class="{ 'btn-update': modoEdicao }"
-            >
-              <span v-if="modoEdicao">💾 Salvar</span>
+            <button type="submit" class="btn-submit" :class="{ 'btn-update': isEditing }">
+              <span v-if="isEditing">💾 Salvar</span>
               <span v-else>➕ Adicionar</span>
             </button>
           </div>
@@ -83,33 +57,25 @@
           <h2 class="card-title" style="margin: 0">
             📦 Frutas no Banco de Dados
           </h2>
-          <span class="counter-badge">{{ listaFrutas.length }} total</span>
+          <span class="counter-badge">{{ fruitList.length }} total</span>
         </div>
 
-        <ul v-if="listaFrutas.length > 0" class="fruit-list">
-          <li v-for="fruta in listaFrutas" :key="fruta.id" class="fruit-item">
+        <ul v-if="fruitList.length > 0" class="fruit-list">
+          <li v-for="fruit in fruitList" :key="fruit.id" class="fruit-item">
             <div class="fruit-info">
               <div class="status-dot"></div>
               <div class="fruit-details">
-                <span class="fruit-name">{{ fruta.nome }}</span>
+                <span class="fruit-name">{{ fruit.name }}</span>
                 <span class="divider">•</span>
-                <span class="fruit-color-badge">Cor: {{ fruta.cor }}</span>
+                <span class="fruit-color-badge">Cor: {{ fruit.color }}</span>
               </div>
             </div>
 
             <div class="fruit-actions">
-              <button
-                @click="entrarModoEdicao(fruta)"
-                class="btn-edit"
-                title="Editar fruta"
-              >
+              <button @click="startEdit(fruit)" class="btn-edit" title="Editar fruta">
                 <span>✏️</span> Editar
               </button>
-              <button
-                @click="deletarFruta(fruta.id)"
-                class="btn-delete"
-                title="Excluir fruta"
-              >
+              <button @click="deleteFruit(fruit.id)" class="btn-delete" title="Excluir fruta">
                 <span>🗑️</span> Excluir
               </button>
             </div>
@@ -135,145 +101,137 @@
 import axios from "axios";
 import "./assets/main.css";
 
-const API_URL = "http://localhost:8080/frutas";
+const API_URL = "http://localhost:8080/fruits";
 
 export default {
   name: "App",
   data() {
     return {
-      listaFrutas: [],
-      toasts: [], // Lista dinâmica de notificações ativas
-      modoEdicao: false,
-      idFrutaSendoEditada: null,
-      novaFruta: {
-        nome: "",
-        cor: "",
+      fruitList: [],
+      toasts: [],
+      isEditing: false,
+      editingFruitId: null,
+      newFruit: {
+        name: "",
+        color: "",
       },
     };
   },
   methods: {
-    // 🔍 Sistema Reativo de Alertas (Toasts)
-    mostrarToast(mensagem, tipo = "success") {
+    showToast(message, type = "success") {
       const id = Date.now();
-      // Adiciona o toast na lista
-      this.toasts.push({ id, mensagem, tipo });
-
-      // Remove o toast automaticamente após 3.5 segundos
+      this.toasts.push({ id, message, type });
       setTimeout(() => {
         this.toasts = this.toasts.filter((t) => t.id !== id);
       }, 3500);
     },
 
-    // 🔍 GET - Listar todas as frutas
-    buscarFrutas() {
+    fetchFruits() {
       axios
         .get(API_URL)
         .then((response) => {
-          this.listaFrutas = response.data;
+          this.fruitList = response.data;
         })
         .catch((error) => {
           console.error("Erro ao buscar frutas do back-end:", error);
-          this.mostrarToast(
+          this.showToast(
             "Erro ao conectar com o servidor do Docker.",
             "danger",
           );
         });
     },
 
-    submeterFormulario() {
-      if (this.modoEdicao) {
-        this.atualizarFruta();
+    handleSubmit() {
+      if (this.isEditing) {
+        this.updateFruit();
       } else {
-        this.cadastrarFruta();
+        this.createFruit();
       }
     },
 
-    // ➕ POST - Cadastrar uma nova fruta
-    cadastrarFruta() {
-      const nomeFrutaSalva = this.novaFruta.nome;
+    createFruit() {
+      const savedFruitName = this.newFruit.name;
       axios
-        .post(API_URL, this.novaFruta)
+        .post(API_URL, this.newFruit)
         .then((response) => {
           if (Array.isArray(response.data)) {
-            this.listaFrutas = response.data;
+            this.fruitList = response.data;
           } else {
-            this.buscarFrutas();
+            this.fetchFruits();
           }
-          this.mostrarToast(
-            `"${nomeFrutaSalva}" cadastrada com sucesso!`,
+          this.showToast(
+            `"${savedFruitName}" cadastrada com sucesso!`,
             "success",
           );
-          this.limparFormulario();
+          this.clearForm();
         })
         .catch((error) => {
           console.error("Erro ao cadastrar fruta:", error);
-          this.mostrarToast("Não foi possível cadastrar a fruta.", "danger");
+          this.showToast("Não foi possível cadastrar a fruta.", "danger");
         });
     },
 
-    entrarModoEdicao(fruta) {
-      this.modoEdicao = true;
-      this.idFrutaSendoEditada = fruta.id;
-      this.novaFruta = {
-        nome: fruta.nome,
-        cor: fruta.cor,
+    startEdit(fruit) {
+      this.isEditing = true;
+      this.editingFruitId = fruit.id;
+      this.newFruit = {
+        name: fruit.name,
+        color: fruit.color,
       };
       window.scrollTo({ top: 0, behavior: "smooth" });
     },
 
-    // 💾 PUT - Salvar alterações
-    atualizarFruta() {
+    updateFruit() {
       axios
-        .put(`${API_URL}/${this.idFrutaSendoEditada}`, this.novaFruta)
+        .put(`${API_URL}/${this.editingFruitId}`, this.newFruit)
         .then((response) => {
           if (Array.isArray(response.data)) {
-            this.listaFrutas = response.data;
+            this.fruitList = response.data;
           } else {
-            this.buscarFrutas();
+            this.fetchFruits();
           }
-          this.mostrarToast("Alterações salvas com sucesso!", "success");
-          this.cancelarEdicao();
+          this.showToast("Alterações salvas com sucesso!", "success");
+          this.cancelEdit();
         })
         .catch((error) => {
           console.error("Erro ao atualizar fruta:", error);
-          this.mostrarToast("Erro ao tentar atualizar os dados.", "danger");
+          this.showToast("Erro ao tentar atualizar os dados.", "danger");
         });
     },
 
-    cancelarEdicao() {
-      this.modoEdicao = false;
-      this.idFrutaSendoEditada = null;
-      this.limparFormulario();
+    cancelEdit() {
+      this.isEditing = false;
+      this.editingFruitId = null;
+      this.clearForm();
     },
 
-    // 🗑️ DELETE - Apagar fruta
-    deletarFruta(id) {
-      if (this.modoEdicao && this.idFrutaSendoEditada === id) {
-        this.cancelarEdicao();
+    deleteFruit(id) {
+      if (this.isEditing && this.editingFruitId === id) {
+        this.cancelEdit();
       }
 
       axios
         .delete(`${API_URL}/${id}`)
         .then((response) => {
           if (Array.isArray(response.data)) {
-            this.listaFrutas = response.data;
+            this.fruitList = response.data;
           } else {
-            this.buscarFrutas();
+            this.fetchFruits();
           }
-          this.mostrarToast("Fruta removida da lista.", "info");
+          this.showToast("Fruta removida da lista.", "info");
         })
         .catch((error) => {
           console.error("Erro ao deletar fruta:", error);
-          this.mostrarToast("Erro ao tentar deletar a fruta.", "danger");
+          this.showToast("Erro ao tentar deletar a fruta.", "danger");
         });
     },
 
-    limparFormulario() {
-      this.novaFruta = { nome: "", cor: "" };
+    clearForm() {
+      this.newFruit = { name: "", color: "" };
     },
   },
   mounted() {
-    this.buscarFrutas();
+    this.fetchFruits();
   },
 };
 </script>

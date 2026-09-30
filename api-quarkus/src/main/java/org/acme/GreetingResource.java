@@ -1,6 +1,7 @@
 package org.acme;
 
 import java.util.List;
+
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -12,49 +13,49 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-@Path("/frutas")
+@Path("/fruits")
 @Produces(MediaType.APPLICATION_JSON)
 public class GreetingResource {
 
 	@GET
-	public List<Fruta> listarFrutas() {
-		return Fruta.listAll();
+	public List<Fruit> listFruits() {
+		return Fruit.listAll();
 	}
 
 	@GET
 	@Path("/{id}")
-	public Fruta buscarPorId(@PathParam("id") Long id) {
-		return Fruta.findById(id);
+	public Fruit getById(@PathParam("id") Long id) {
+		return Fruit.findById(id);
 	}
 
 	@POST
 	@Transactional
-	public Response adicionarFruta(Fruta novaFruta) {
+	public Response addFruit(Fruit novaFruta) {
 		novaFruta.persist();
-		List<Fruta> listaAtualizada = Fruta.listAll();
-		return Response.status(Response.Status.CREATED).entity(listaAtualizada).build();
+		List<Fruit> list = Fruit.listAll();
+		return Response.status(Response.Status.CREATED).entity(list).build();
 	}
 
 	@DELETE
 	@Path("/{id}")
 	@Transactional
-	public Response deletarFruta(@PathParam("id") Long id) {
-		Fruta.deleteById(id);
-		List<Fruta> listaAtualizada = Fruta.listAll();
-		return Response.ok(listaAtualizada).build();
+	public Response deleteFruit(@PathParam("id") Long id) {
+		Fruit.deleteById(id);
+		List<Fruit> list = Fruit.listAll();
+		return Response.ok(list).build();
 	}
 
 	@PUT
 	@Path("/{id}")
 	@Transactional
-	public Response atualizarFruta(@PathParam("id") Long id, Fruta frutaAtualizada) {
-		Fruta frutaBanco = Fruta.findById(id);
-		if (frutaBanco != null) {
-			frutaBanco.nome = frutaAtualizada.nome;
-			frutaBanco.cor = frutaAtualizada.cor;
+	public Response editFruit(@PathParam("id") Long id, Fruit updatedFruit) {
+		Fruit fruit = Fruit.findById(id);
+		if (fruit != null) {
+			fruit.name = updatedFruit.name;
+			fruit.color = updatedFruit.color;
 		}
-		List<Fruta> listaAtualizada = Fruta.listAll();
-		return Response.ok(listaAtualizada).build();
+		List<Fruit> list = Fruit.listAll();
+		return Response.ok(list).build();
 	}
-	
+
 }

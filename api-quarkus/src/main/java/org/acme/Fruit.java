@@ -5,23 +5,21 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Entity
-public class Fruta extends PanacheEntityBase {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Fruit extends PanacheEntityBase {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Long id;
 
-	public String nome;
-	public String cor;
+	public String name;
+	public String color;
 
-	public Fruta() {
-	}
-
-	public Fruta(String nome, String cor) {
-		this.nome = nome;
-		this.cor = cor;
-	}
+	
 
 }
