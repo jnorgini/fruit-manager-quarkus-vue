@@ -5,4 +5,3 @@ Bundle-SymbolicName: api-quarkus
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-25
 Automatic-Module-Name: api.quarkus
-Export-Package: org.acme
