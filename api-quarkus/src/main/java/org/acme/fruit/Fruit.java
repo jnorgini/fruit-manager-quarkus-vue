@@ -1,16 +1,16 @@
-package org.acme;
+package org.acme.fruit;
+
+import org.acme.exception.ResourceNotFoundException;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
-@AllArgsConstructor
 public class Fruit extends PanacheEntityBase {
 
 	@Id
@@ -20,6 +20,12 @@ public class Fruit extends PanacheEntityBase {
 	public String name;
 	public String color;
 
-	
+	public static Fruit findByIdOrThrow(Long id) {
+		Fruit fruit = Fruit.findById(id);
+		if (fruit == null) {
+			throw new ResourceNotFoundException("Fruta com o ID " + id + " não encontrada.");
+		}
+		return fruit;
+	}
 
 }
