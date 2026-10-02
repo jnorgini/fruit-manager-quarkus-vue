@@ -30,12 +30,14 @@
         <form @submit.prevent="handleSubmit" class="form-grid">
           <div class="input-group">
             <label class="label">Nome da Fruta</label>
-            <input v-model="newFruit.name" type="text" placeholder="Ex: Melancia" required class="input-field" />
+            <input v-model="newFruit.name" type="text" placeholder="Ex: Melancia" required minlength="2" maxlength="50"
+              class="input-field" />
           </div>
 
           <div class="input-group">
             <label class="label">Cor Predominante</label>
-            <input v-model="newFruit.color" type="text" placeholder="Ex: Verde" required class="input-field" />
+            <input v-model="newFruit.color" type="text" placeholder="Ex: Verde" required minlength="2" maxlength="50"
+              class="input-field" />
           </div>
 
           <!-- Botões Dinâmicos dependendo do Modo (Cadastro vs Edição) -->
