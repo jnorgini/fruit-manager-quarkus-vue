@@ -2,7 +2,7 @@ package org.acme.fruit.mapper;
 
 import java.util.List;
 
-import org.acme.fruit.Fruit;
+import org.acme.fruit.domain.Fruit;
 import org.acme.fruit.dto.FruitRequestDTO;
 import org.acme.fruit.dto.FruitResponseDTO;
 import org.mapstruct.Mapper;

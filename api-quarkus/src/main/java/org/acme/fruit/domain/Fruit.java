@@ -1,4 +1,4 @@
-package org.acme.fruit;
+package org.acme.fruit.domain;
 
 import org.acme.exception.ResourceNotFoundException;
 
