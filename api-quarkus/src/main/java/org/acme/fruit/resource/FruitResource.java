@@ -7,6 +7,7 @@ import org.acme.fruit.dto.FruitRequestDTO;
 import org.acme.fruit.dto.FruitResponseDTO;
 import org.acme.fruit.mapper.FruitMapper;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -30,12 +31,14 @@ public class FruitResource {
 	FruitMapper mapper;
 
 	@GET
+	@RolesAllowed({ "USER", "ADMIN" })
 	public List<FruitResponseDTO> listFruits() {
 		return mapper.toResponseList(Fruit.listAll());
 	}
 
 	@GET
 	@Path("/{id}")
+	@RolesAllowed({ "USER", "ADMIN" })
 	public Response getById(@PathParam("id") Long id) {
 		Fruit fruit = Fruit.findByIdOrThrow(id);
 		return Response.ok(mapper.toResponse(fruit)).build();
@@ -43,6 +46,7 @@ public class FruitResource {
 
 	@POST
 	@Transactional
+	@RolesAllowed({ "USER", "ADMIN" })
 	public Response addFruit(@Valid FruitRequestDTO dto) {
 		Fruit novaFruta = mapper.toEntity(dto);
 		novaFruta.persist();
@@ -53,6 +57,7 @@ public class FruitResource {
 	@PUT
 	@Path("/{id}")
 	@Transactional
+	@RolesAllowed({ "USER", "ADMIN" })
 	public Response editFruit(@PathParam("id") Long id, @Valid FruitRequestDTO dto) {
 		Fruit fruit = Fruit.findByIdOrThrow(id);
 		mapper.updateEntityFromDto(dto, fruit);
@@ -62,6 +67,7 @@ public class FruitResource {
 	@DELETE
 	@Path("/{id}")
 	@Transactional
+	@RolesAllowed({ "USER", "ADMIN" })
 	public Response deleteFruit(@PathParam("id") Long id) {
 		Fruit fruit = Fruit.findByIdOrThrow(id);
 		fruit.delete();
