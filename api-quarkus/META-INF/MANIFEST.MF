@@ -3,5 +3,5 @@ Bundle-ManifestVersion: 2
 Bundle-Name: api-quarkus
 Bundle-SymbolicName: api-quarkus
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-25
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: api.quarkus
