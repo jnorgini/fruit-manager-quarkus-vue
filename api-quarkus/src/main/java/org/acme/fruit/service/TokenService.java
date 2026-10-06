@@ -12,10 +12,16 @@ public class TokenService {
 
 	public String generateToken(String username, Set<Role> roles) {
 
-		Set<String> stringRoles = roles.stream().map(Role::name).collect(Collectors.toSet());
+		Set<String> stringRoles = roles.stream()
+				.map(Role::name)
+				.collect(Collectors.toSet());
 
-		return Jwt.issuer("https://quarkus-api-frutas.com").upn(username).groups(stringRoles)
-				.expiresIn(Duration.ofHours(2)).sign();
+		return Jwt.issuer("https://quarkus-api-frutas.com")
+				.upn(username)
+				.groups(stringRoles)
+				.expiresIn(Duration.ofHours(2))
+				//.expiresIn(Duration.ofMinutes(1)) test
+				.sign();
 	}
 	
 }
