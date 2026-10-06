@@ -4,8 +4,8 @@ A minimalist and modern full-stack web application to manage fruits, built using
 
 ## 🚀 Tech Stack
 
-- **Backend:** Quarkus (Java 17), RESTEasy Reactive, Hibernate ORM with Panache.
-- **Frontend:** Vue.js (Vite), Modern Vanilla CSS Core.
+- **Backend:** Quarkus (Java 17), RESTEasy Reactive, Hibernate ORM with Panache, SmallRye JWT.
+- **Frontend:** Vue.js (Vite), Axios, Modern Vanilla CSS Core.
 - **Database:** MySQL 8.0.
 - **Infrastructure:** Docker & Docker Compose.
 
@@ -18,7 +18,7 @@ Make sure you have **Docker Desktop** installed on your machine.
 Navigate to the API folder and compile the project skipping tests:
 ```cmd
 cd api-quarkus
-mvnw clean package -DskipTests
+mvn clean package -DskipTests
 ```
 
 ### 2. Start the Docker Infrastructure
@@ -26,7 +26,7 @@ From the root folder, spin up the database and the API containers:
 ```cmd
 docker compose up -d --build
 ```
-The API will be live at `http://localhost:8080/frutas`.
+The API will be live at `http://localhost:8080/fruits`.
 
 ### 3. Run the Frontend
 Navigate to the Vue folder, install dependencies, and start the Vite dev server:
@@ -37,6 +37,15 @@ npm install
 npm run dev
 ```
 Open your browser at `http://localhost:5173` to manage your fruits.
+
+## 🔒 Authentication & Roles
+The system includes secure login with permissions:
+- **Admin:** Can list, create, edit, and delete fruits.
+- **User:** Can only view the fruit list.
+
+*An initial admin user is created automatically on startup:*
+- **Username:** `system_admin`
+- **Password:** `SecurePassword123`
 
 ## 🔒 Architecture Note
 - **CORS Handling:** Managed globally via custom Quarkus reactive filters for smooth, multi-origin resource sharing with the local client dashboard.
