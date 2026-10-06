@@ -4,14 +4,15 @@ import java.util.Set;
 
 import org.acme.fruit.domain.Role;
 import org.acme.fruit.domain.User;
+import org.acme.fruit.dto.AuthDTO;
 import org.acme.fruit.dto.UserRegisterDTO;
-import org.acme.fruit.dto.AuthDTO; 
 import org.acme.fruit.repository.UserRepository;
 import org.acme.fruit.service.TokenService;
 
 import io.quarkus.elytron.security.common.BcryptUtil;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -33,7 +34,7 @@ public class AuthResource {
 	@POST
 	@Path("/register")
 	@Transactional
-	public Response register(UserRegisterDTO registerRequest) {
+	public Response register(@Valid UserRegisterDTO registerRequest) {
 		if (userRepository.findByUsername(registerRequest.username) != null) {
 			return Response.status(Response.Status.BAD_REQUEST).entity("Este nome de usuário já está cadastrado.")
 					.build();
@@ -55,7 +56,7 @@ public class AuthResource {
 
 	@POST
 	@Path("/login")
-	public Response login(AuthDTO loginRequest) {
+	public Response login(@Valid AuthDTO loginRequest) {
 		User user = userRepository.findByUsername(loginRequest.username);
 
 		if (user != null && BcryptUtil.matches(loginRequest.password, user.password)) {
