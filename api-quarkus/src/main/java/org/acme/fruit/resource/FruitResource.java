@@ -32,8 +32,9 @@ public class FruitResource {
 
 	@GET
 	@RolesAllowed({ "USER", "ADMIN" })
-	public List<FruitResponseDTO> listFruits() {
-		return mapper.toResponseList(Fruit.listAll());
+	public Response listFruits() {
+		List<FruitResponseDTO> fruits = mapper.toResponseList(Fruit.listAll());
+		return Response.ok(fruits).build();
 	}
 
 	@GET

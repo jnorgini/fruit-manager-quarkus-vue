@@ -1,5 +1,6 @@
 package org.acme.fruit.resource;
 
+import java.util.List;
 import java.util.Set;
 
 import org.acme.fruit.domain.Role;
@@ -14,8 +15,11 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -68,9 +72,32 @@ public class AuthResource {
 
 	public static class TokenResponse {
 		public String token;
+
 		public TokenResponse(String token) {
 			this.token = token;
 		}
 	}
-	
+
+	@GET
+	public Response listUsers() {
+		List<User> users = userRepository.listAll();
+		return Response.ok(users).build();
+	}
+
+	@GET
+	@Path("/{id}")
+	public Response getById(@PathParam("id") Long id) {
+		User user = userRepository.findById(id);
+		return Response.ok(user).build();
+	}
+
+	@DELETE
+	@Path("/{id}")
+	@Transactional
+	public Response deleteUser(@PathParam("id") Long id) {
+		User user = userRepository.findById(id);
+		userRepository.delete(user);
+		return Response.noContent().build();
+	}
+
 }
