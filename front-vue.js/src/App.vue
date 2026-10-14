@@ -2,15 +2,17 @@
   <div class="app-container">
     <div class="max-width-wrapper">
 
-      <!-- Container dos Toasts na Raiz -->
       <div v-if="!isLogged" class="toast-container">
         <div v-for="toast in toasts" :key="toast.id" class="toast" :class="'toast-' + toast.type">
-          <span class="toast-icon">🗑️</span>
+
+          <span class="toast-icon">
+            <span v-if="toast.type === 'danger'">⚠️</span>
+            <span v-else>🗑️</span>
+          </span>
           <span class="toast-message">{{ toast.message }}</span>
         </div>
       </div>
 
-      <!-- Alternância Condicional das Telas -->
       <LoginForm v-if="!isLogged" @login-success="onLoginSuccess" @login-failed="showLoginError" />
 
       <FruitManager v-else :token="userToken" @logout="finalizarSessao" />
@@ -47,7 +49,6 @@ export default {
       }, 3500);
     },
 
-    // 1. Grava o cookie ao logar com sucesso
     onLoginSuccess(token) {
       document.cookie = "user_token=; max-age=0; path=/; SameSite=Strict; Secure";
 
@@ -58,7 +59,6 @@ export default {
       this.isLogged = true;
     },
 
-    // 2. Destrói o cookie da tabela do DevTools e limpa a memória do app
     finalizarSessao() {
       document.cookie = "user_token=; max-age=0; path=/; SameSite=Strict; Secure";
       this.userToken = "";
@@ -72,12 +72,18 @@ export default {
       return null;
     },
 
-    // 3. Interceptador com o escudo definitivo de segurança
     configurarInterceptador() {
       const contexto = this;
       axios.interceptors.response.use(
         (response) => response,
         (error) => {
+
+          const isLoginRequest = error.config && error.config.url && error.config.url.includes("/auth/login");
+
+          if (isLoginRequest) {
+            return Promise.reject(error);
+          }
+
           const isAuthError = error.response && (error.response.status === 401 || error.response.status === 403);
           const isNetworkError = !error.response;
 
@@ -96,7 +102,6 @@ export default {
     }
   },
   created() {
-    // Inicializa a proteção global do Axios assim que o App nasce
     this.configurarInterceptador();
   },
   mounted() {
